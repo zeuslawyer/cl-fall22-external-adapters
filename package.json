@@ -6,19 +6,15 @@
   "license": "MIT",
   "scripts": {
     "test": "./node_modules/.bin/_mocha --timeout 0",
-    "start": "nodemon src/server.ts"
+    "start": "nodemon app.js"
   },
   "dependencies": {
     "@chainlink/contracts": "^0.5.1",
-    "@chainlink/external-adapter": "^0.2.3",
-    "axios": "^1.1.2",
+    "@chainlink/external-adapter": "^0.2.6",
     "dotenv": "^16.0.2",
     "express": "^4.18.2"
   },
   "devDependencies": {
-    "@tsconfig/node16": "^1.0.3",
-    "@types/express": "^4.17.14",
-    "@types/node": "^18.8.3",
     "body-parser": "^1.19.0",
     "chai": "^4.2.0",
     "eslint": "^7.0.0",
@@ -28,8 +24,6 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "mocha": "^7.1.2",
-    "nodemon": "^2.0.20",
-    "ts-node": "^10.9.1",
-    "typescript": "^4.8.4"
+    "nodemon": "^2.0.20"
   }
 }
