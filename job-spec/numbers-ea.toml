@@ -1,0 +1,24 @@
+type = "directrequest"
+schemaVersion = 1
+name = "demo-numbers-bridge"  #  TODO Pick a Job name
+# externalJobID = "93fd9200-63d2-462d-8dce-013a7fc75656"  -->  TODO REMOVE this as the node will auto-assign an external job ID.
+maxTaskDuration = "0s"
+contractAddress = " #### INSERT YOURS HERE ####  "   # TODO Update to your Operator / Oracle contract here and in submit_tx.
+minContractPaymentLinkJuels = "0"
+observationSource = """
+    decode_log   [type=ethabidecodelog
+                  abi="OracleRequest(bytes32 indexed specId, address requester, bytes32 requestId, uint256 payment, address callbackAddr, bytes4 callbackFunctionId, uint256 cancelExpiration, uint256 dataVersion, bytes data)"
+                  data="$(jobRun.logData)"
+                  topics="$(jobRun.logTopics)"]
+
+    decode_cbor  [type=cborparse data="$(decode_log.data)"]
+    fetch        [type=bridge name="numbers-bridge" requestData="{\\"id\\": $(jobSpec.externalJobID), \\"data\\": { \\"number\\": $(decode_cbor.number) , \\"infoType\\": $(decode_cbor.infoType)}}"]
+    parse        [type=jsonparse path="data,result" data="$(fetch)"]
+    encode_data  [type=ethabiencode abi="(bytes32 requestId,string info)" data="{\\"requestId\\": $(decode_log.requestId),\\"info\\": $(parse) }"]
+    encode_tx    [type=ethabiencode
+                  abi="fulfillOracleRequest2(bytes32 requestId, uint256 payment, address callbackAddress, bytes4 callbackFunctionId, uint256 expiration, bytes calldata data)"
+                  data="{\\"requestId\\": $(decode_log.requestId), \\"payment\\": $(decode_log.payment), \\"callbackAddress\\": $(decode_log.callbackAddr), \\"callbackFunctionId\\": $(decode_log.callbackFunctionId), \\"expiration\\": $(decode_log.cancelExpiration), \\"data\\": $(encode_data)}"]
+    submit_tx    [type=ethtx to=" #### INSERT YOURS HERE #### " data="$(encode_tx)"]
+
+    decode_log -> decode_cbor -> fetch -> parse -> encode_data -> encode_tx -> submit_tx
+"""
